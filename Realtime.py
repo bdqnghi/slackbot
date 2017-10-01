@@ -449,10 +449,12 @@ def check_rtm(response,alloweddomains,secfeaturesconf,secfeatures,seccommands,
                 
         elif response['type']=='user_change' and response['user']['deleted']==False:
             if secfeatures['nameban']:
+                print("Checking name ban")
                 if response['user']['profile']['display_name_normalized'] in admins[0] or (
                     response['user']['profile']['display_name_normalized'] in secfeaturesconf['namebanlist'] ):
                     with requests.post(create_banurl(),data=create_data(response['user']['id']),
                                        headers=create_banheaders()) as request:
+
                         request.close() 
                         do_send_botmessage('CRIT:  username: '+response['user']['name']+' with name: '+
                                    response['user']['real_name']+
@@ -587,11 +589,14 @@ def check_rtm(response,alloweddomains,secfeaturesconf,secfeatures,seccommands,
                 if response['channel'] in channels.keys():
                     delete_text(response['channel'],response['ts'])
 
-def realtime_run():            
+def realtime_run():   
+    print("FUCK")         
     lograte=Lograte(6)
     results1['users.list'] = get_users(bottoken)
+    print(results1['users.list'])
     admins = gather_admins(results1)
     results1['channels.list'] = get_channels(bottoken)
+
     channels=gather_channels(results1)
     for i in admins[1]: alloweduserids.append(i)
     simplecommands =  get_config_simplecommands()
@@ -601,9 +606,12 @@ def realtime_run():
     alloweddomains = secfeaturesconf['alloweddomains']
     commandprefix = secfeaturesconf['forbidroguechar']
     async def connect(token):
+        print("connecting with token " + token)
         async with websockets.connect(get_socket_url(token)['url']) as websocket:
             while True:
                 response=json.loads(await websocket.recv())
+                print(response)
+                print(response["type"])
                 check_rtm(response,alloweddomains,secfeaturesconf,secfeatures,seccommands,
                           simplecommands,alloweduserids,channels,admins,lograte)
                      
@@ -623,7 +631,7 @@ def realtime_run_loop():
             pass
                 
 if __name__ == '__main__':
-    schedule.every(1).minutes.do(realtime_run_loop)
+    schedule.every(5).seconds.do(realtime_run)
 
 
     while True:
