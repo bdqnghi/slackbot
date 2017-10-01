@@ -1,4 +1,4 @@
-
+import schedule
 from time import time
 from Reminders import create_request,do_send_botmessage,get_users
 from Messenger import cleanspaces
@@ -10,6 +10,7 @@ import urllib.request
 import json
 import asyncio
 import websockets
+import time as t
 
 
 config = configparser.ConfigParser()
@@ -622,5 +623,11 @@ def realtime_run_loop():
             pass
                 
 if __name__ == '__main__':
-    realtime_run_loop()
+    schedule.every(1).minutes.do(realtime_run_loop)
+
+
+    while True:
+        schedule.run_pending()
+        t.sleep(1)
+    # realtime_run_loop()
     
